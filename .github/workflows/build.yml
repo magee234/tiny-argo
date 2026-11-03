@@ -10,12 +10,6 @@ on:
       sing_box_version:
         description: "sing-box version (WARNING: >=1.12 doubles image size)"
         default: "1.9.5"
-      cloudflared_version:
-        description: "cloudflared version tag, or 'auto' for latest"
-        default: "auto"
-  schedule:
-    # every Tuesday 02:00 Beijing time -- refresh cloudflared, rebuild
-    - cron: "0 18 * * 1"
 
 jobs:
   build:
@@ -26,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [direct, argo]
+        target: [direct]
 
     steps:
       - name: Checkout
@@ -36,15 +30,9 @@ jobs:
         id: ver
         run: |
           SB="${{ github.event.inputs.sing_box_version }}"
-          CF="${{ github.event.inputs.cloudflared_version }}"
           [ -z "$SB" ] && SB="1.9.5"
-          [ -z "$CF" ] && CF="auto"
-          if [ "$CF" = "auto" ]; then
-            CF=$(curl -fsSL https://api.github.com/repos/cloudflare/cloudflared/releases/latest | jq -r '.tag_name')
-          fi
           echo "sb=$SB" >> "$GITHUB_OUTPUT"
-          echo "cf=$CF" >> "$GITHUB_OUTPUT"
-          echo "sing-box: $SB  cloudflared: $CF"
+          echo "sing-box: $SB"
 
       - name: Lowercase image name
         id: repo
@@ -55,9 +43,8 @@ jobs:
         run: |
           R="ghcr.io/${{ steps.repo.outputs.name }}"
           T="${{ matrix.target }}"
-          V="sb${{ steps.ver.outputs.sb }}-cf${{ steps.ver.outputs.cf }}"
-          TAGS="$R:$T,$R:$V-$T"
-          if [ "$T" = "direct" ]; then TAGS="$TAGS,$R:latest"; fi
+          V="sb${{ steps.ver.outputs.sb }}"
+          TAGS="$R:$T,$R:$V-$T,$R:latest"
           echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
@@ -82,7 +69,6 @@ jobs:
           push: true
           build-args: |
             SING_BOX_VERSION=${{ steps.ver.outputs.sb }}
-            CLOUDFLARED_VERSION=${{ steps.ver.outputs.cf }}
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
