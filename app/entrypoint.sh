@@ -12,6 +12,7 @@ $BB mkdir -p /tmp
 
 UUID=${UUID:-}
 PORT=${PORT:-3000}
+PUBLIC_PORT=${PUBLIC_PORT:-$PORT}
 NAME=${NAME:-tiny}
 HOST=${HOST:-}
 LOG_LEVEL=${LOG_LEVEL:-info}
@@ -58,7 +59,7 @@ if [ -z "$HOST" ]; then
   log "WARN: public IP not detected; set HOST=<your-ip> to get a usable link"
   HOST="YOUR_SERVER_IP"
 fi
-LINK="vless://${UUID}@${HOST}:${PORT}?encryption=none&security=none&type=ws&host=${HOST}&path=%2F${UUID}%3Fed%3D2048#${NAME}"
+LINK="vless://${UUID}@${HOST}:${PUBLIC_PORT}?encryption=none&security=none&type=ws&host=${HOST}&path=%2F${UUID}%3Fed%3D2048#${NAME}"
 
 log "----------------------------------------------"
 log "NODE: $LINK"
