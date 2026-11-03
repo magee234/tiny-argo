@@ -1,0 +1,5 @@
+# force LF line endings -- CRLF breaks shell scripts inside the image
+*.sh  text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
