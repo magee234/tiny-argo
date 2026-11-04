@@ -36,7 +36,8 @@ COPY --from=fetch /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifica
 COPY app/entrypoint.sh /app/entrypoint.sh
 
 ENV PATH=/usr/local/bin:/bin \
-    GOMEMLIMIT=20MiB \
-    GOGC=50
+    GOMEMLIMIT=64MiB \
+    GOGC=100 \
+    LOG_LEVEL=warn
 EXPOSE 3000
 ENTRYPOINT ["/bin/busybox", "sh", "/app/entrypoint.sh"]
